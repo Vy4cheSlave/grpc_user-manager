@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package auth;
+
+//protoc --go_out=. --go_opt=module=github.com/Vy4cheSlave/grpc_user-manager        --go-grpc_out=. --go-grpc_opt=module=github.com/Vy4cheSlave/grpc_user-manager        proto/auth.proto
+
+option go_package = "github.com/Vy4cheSlave/grpc_user-manager/gen/go/auth;auth";
+
+service Auth {
+  rpc Register (RegisterRequest) returns (RegisterResponse);
+  rpc Login (LoginRequest) returns (LoginResponse);
+}
+
+message RegisterRequest {
+  string username = 1;
+  string password = 2;
+}
+
+message RegisterResponse {
+  string user_id = 1;
+}
+
+message LoginRequest {
+  string username = 1;
+  string password = 2;
+}
+
+message LoginResponse {
+  string token = 1;
+}
