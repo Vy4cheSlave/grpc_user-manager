@@ -1,0 +1,22 @@
+all: false
+dir: '{{.InterfaceDir}}'
+filename: mocks_test.go
+force-file-write: true
+formatter: goimports
+include-auto-generated: false
+log-level: info
+structname: '{{.Mock}}{{.InterfaceName}}'
+pkgname: '{{.SrcPackageName}}'
+recursive: false
+require-template-schema-exists: true
+template: testify
+template-schema: '{{.Template}}.schema.json'
+packages:
+  github.com/Vy4cheSlave/grpc_user-manager/internal/infrastructure/rest:
+    interfaces:
+      TaskCrud:
+    config:
+      all: true
+      dir: ./internal/infrastructure/rest/mocks
+      filename: task_crud_mocks.go
+      pkgname: mocks

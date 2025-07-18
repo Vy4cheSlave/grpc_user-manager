@@ -12,19 +12,16 @@ type Config struct {
 	TokenTTL    time.Duration `envconfig:"TOKEN_TTL_H" required:"true"`
 	TokenSecret []byte        `envconfig:"TOKEN_SECRET" required:"true"`
 	LogLevel    string        `envconfig:"LOG_LEVEL" required:"true"`
-	//Rest       Rest
+	Rest        Rest
 }
 
-//type Rest struct {
-//	ListenHost string `envconfig:"HOST" required:"true" default:"localhost"`
-//	ListenPort string `envconfig:"PORT" required:"true"`
-//	//WriteTimeout  time.Duration `envconfig:"WRITE_TIMEOUT" required:"true"`
-//	//ServerName    string        `envconfig:"SERVER_NAME" required:"true"`
-//	//Token         string        `envconfig:"TOKEN" required:"true"`
-//}
+type Rest struct {
+	Host string `envconfig:"REST_HOST" default:"localhost"`
+	Port string `envconfig:"REST_PORT" required:"true"`
+}
 
 type GRPC struct {
-	Host string `envconfig:"GRPC_HOST" required:"true"`
+	Host string `envconfig:"GRPC_HOST" default:"localhost"`
 	Port string `envconfig:"GRPC_PORT" required:"true"`
 }
 

@@ -37,7 +37,7 @@ func NewServer(log *slog.Logger, service Auth, addr *string) *Server {
 }
 
 func (s *Server) Run() error {
-	const op = "internal/infrastructure/grpc/server.Server.Run"
+	const op = "internal/infrastructure/grpc/handler.Server.Run"
 	log := s.log.With(slog.String("operation", op), slog.String("addr", s.addr))
 
 	lis, err := net.Listen(
@@ -58,7 +58,7 @@ func (s *Server) Run() error {
 }
 
 func (s *Server) Stop() {
-	const op = "internal/infrastructure/grpc/server.Server.Stop"
+	const op = "internal/infrastructure/grpc/handler.Server.Stop"
 	s.log.With(slog.String("operation", op), slog.String("addr", s.addr)).
 		Info("grpc server is stopping")
 	s.gRPCServer.Stop()
@@ -74,8 +74,6 @@ func RegisterGRPC(gRPC *grpc.Server, auth Auth) {
 }
 
 func (s *serverAPI) Login(ctx context.Context, req *pbAuth.LoginRequest) (*pbAuth.LoginResponse, error) {
-	// todo:валидация данных
-
 	token, err := s.auth.Login(ctx, req.GetUsername(), req.GetPassword())
 	if err != nil {
 		if errors.Is(err, db.ErrUserNotFound) {
@@ -89,8 +87,6 @@ func (s *serverAPI) Login(ctx context.Context, req *pbAuth.LoginRequest) (*pbAut
 	}, nil
 }
 func (s *serverAPI) Register(ctx context.Context, req *pbAuth.RegisterRequest) (*pbAuth.RegisterResponse, error) {
-	// todo:валидация данных
-
 	userId, err := s.auth.Register(ctx, req.GetUsername(), req.GetPassword())
 	if err != nil {
 		if errors.Is(err, db.ErrUserExists) {

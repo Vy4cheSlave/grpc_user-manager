@@ -10,6 +10,8 @@ go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@lat
 go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@latest
 # миграции для Postgres
 go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
+# мокирование
+go install github.com/vektra/mockery/v3@latest
 ```
 
 комманда генерации протофайлов
@@ -25,4 +27,16 @@ protoc --go_out=. --go_opt=module=github.com/Vy4cheSlave/grpc_user-manager \
 ```bash
 docker-compose up
 migrate --path migrations -database "postgres://dbuser:dbpassword@dbhost:dbport/dbname?sslmode=disable" up
+```
+
+комманда создания миграции
+
+```bash
+migrate create -ext sql -dir migrations -seq "name_migration"
+```
+
+комманда создания моков
+
+```bash]
+mockery
 ```
