@@ -17,9 +17,13 @@ go install github.com/vektra/mockery/v3@latest
 комманда генерации протофайлов
 
 ```bash
-protoc --go_out=. --go_opt=module=github.com/Vy4cheSlave/grpc_user-manager \
-       --go-grpc_out=. --go-grpc_opt=module=github.com/Vy4cheSlave/grpc_user-manager \
-       protos/auth.proto
+protoc \
+  -I=./protos \
+  -I=./third_party \
+  --go_out=. --go_opt=module=github.com/Vy4cheSlave/grpc_user-manager \
+  --go-grpc_out=. --go-grpc_opt=module=github.com/Vy4cheSlave/grpc_user-manager \
+  --grpc-gateway_out=. --grpc-gateway_opt=module=github.com/Vy4cheSlave/grpc_user-manager \
+  protos/auth.proto
 ```
 
 комманды поднятия миграций

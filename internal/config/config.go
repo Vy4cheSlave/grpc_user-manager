@@ -13,11 +13,17 @@ type Config struct {
 	TokenSecret []byte        `envconfig:"TOKEN_SECRET" required:"true"`
 	LogLevel    string        `envconfig:"LOG_LEVEL" required:"true"`
 	Rest        Rest
+	Getway      Getway
 }
 
 type Rest struct {
 	Host string `envconfig:"REST_HOST" default:"localhost"`
 	Port string `envconfig:"REST_PORT" required:"true"`
+}
+
+type Getway struct {
+	Host string `envconfig:"GW_HOST" default:"localhost"`
+	Port string `envconfig:"GW_PORT" required:"true"`
 }
 
 type GRPC struct {

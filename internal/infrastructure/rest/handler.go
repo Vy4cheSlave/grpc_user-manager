@@ -1,5 +1,6 @@
 package rest
 
+// todo: переделать маленько
 import (
 	"context"
 	"encoding/json"
@@ -49,7 +50,7 @@ func NewRestServer(api *serverAPI, tokenSecret *[]byte) *fiber.App {
 	// Настройка CORS (разрешенные методы, заголовки, авторизация)
 	app.Use(cors.New(cors.Config{
 		AllowMethods:  "GET, POST, PUT, DELETE",
-		AllowHeaders:  "Accept, Authorization, Content-Type, X-CSRF-Token, X-REQUEST-ID",
+		AllowHeaders:  "Accept, Authorization, Content-Type, X-CSRF-Token, X-REQUEST-ID, X-User-Id",
 		ExposeHeaders: "Link",
 		MaxAge:        300,
 	}))
@@ -66,7 +67,7 @@ func NewRestServer(api *serverAPI, tokenSecret *[]byte) *fiber.App {
 		// Middleware auth
 		{
 			authGroup := apiGroup.Group("/auth")
-			authGroup.Use(middleware.JWTAuthMiddleware(tokenSecret))
+			//authGroup.Use(middleware.JWTAuthMiddleware(tokenSecret))
 
 			authGroup.Post("/tasks", api.CreateTask)
 			authGroup.Put("/tasks/:id", api.UpdateStatusTaskById)
@@ -128,15 +129,23 @@ func (s *serverAPI) CreateTask(ctx *fiber.Ctx) error {
 		)
 	}
 
-	userId, ok := ctx.Locals("userId").(string)
-	if !ok {
-		// случай которого, в теории, никогда быть не должно
+	userId := ctx.Get("X-User-Id")
+	if userId == "" {
 		return response.ReturnResponse(
 			ctx,
 			fiber.StatusInternalServerError,
 			response.WithError(response.ErrCodeInternalServerError, "Server misconfiguration: userID not set"),
 		)
 	}
+	//userId, ok := ctx.Locals("userId").(string)
+	//if !ok {
+	//	// случай которого, в теории, никогда быть не должно
+	//	return response.ReturnResponse(
+	//		ctx,
+	//		fiber.StatusInternalServerError,
+	//		response.WithError(response.ErrCodeInternalServerError, "Server misconfiguration: userID not set"),
+	//	)
+	//}
 
 	// Вставка задачи в сервис
 	taskId, err := s.taskCrud.CreateTask(ctx.Context(), &userId, &req.Title, req.Description)

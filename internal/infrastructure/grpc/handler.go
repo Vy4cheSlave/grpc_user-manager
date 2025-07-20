@@ -3,7 +3,7 @@ package grpc
 import (
 	"context"
 	pbAuth "github.com/Vy4cheSlave/grpc_user-manager/gen/go/auth"
-	"github.com/Vy4cheSlave/grpc_user-manager/internal/infrastructure/db"
+	serviceAuth "github.com/Vy4cheSlave/grpc_user-manager/internal/usecase/auth"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -16,6 +16,7 @@ import (
 type Auth interface {
 	Login(ctx context.Context, username string, password string) (token string, err error)
 	Register(ctx context.Context, username string, password string) (userId *string, err error)
+	CheckUser(ctx context.Context, userId string) (username *string, err error)
 }
 
 type Server struct {
@@ -76,10 +77,10 @@ func RegisterGRPC(gRPC *grpc.Server, auth Auth) {
 func (s *serverAPI) Login(ctx context.Context, req *pbAuth.LoginRequest) (*pbAuth.LoginResponse, error) {
 	token, err := s.auth.Login(ctx, req.GetUsername(), req.GetPassword())
 	if err != nil {
-		if errors.Is(err, db.ErrUserNotFound) {
+		if errors.Is(err, serviceAuth.ErrInvalidCredentials) {
 			return nil, status.Error(codes.InvalidArgument, "argument is invalid")
 		}
-		return nil, status.Errorf(codes.Internal, "%v", err) // todo
+		return nil, status.Errorf(codes.InvalidArgument, "%v", err) // todo
 	}
 
 	return &pbAuth.LoginResponse{
@@ -89,13 +90,27 @@ func (s *serverAPI) Login(ctx context.Context, req *pbAuth.LoginRequest) (*pbAut
 func (s *serverAPI) Register(ctx context.Context, req *pbAuth.RegisterRequest) (*pbAuth.RegisterResponse, error) {
 	userId, err := s.auth.Register(ctx, req.GetUsername(), req.GetPassword())
 	if err != nil {
-		if errors.Is(err, db.ErrUserExists) {
+		if errors.Is(err, serviceAuth.ErrInvalidCredentials) {
 			return nil, status.Error(codes.AlreadyExists, "user already exists")
 		}
-		return nil, status.Errorf(codes.Internal, "%v", err) // todo
+		return nil, status.Errorf(codes.AlreadyExists, "%v", err) // todo
 	}
 
 	return &pbAuth.RegisterResponse{
 		UserId: *userId,
+	}, nil
+}
+
+func (s *serverAPI) CheckUser(ctx context.Context, req *pbAuth.CheckUserRequest) (*pbAuth.CheckUserResponse, error) {
+	username, err := s.auth.CheckUser(ctx, req.GetUserId())
+	if err != nil {
+		if errors.Is(err, serviceAuth.ErrInvalidCredentials) {
+			return nil, status.Error(codes.InvalidArgument, "argument is invalid")
+		}
+		return nil, status.Errorf(codes.Internal, "%v", err)
+	}
+
+	return &pbAuth.CheckUserResponse{
+		Username: *username,
 	}, nil
 }

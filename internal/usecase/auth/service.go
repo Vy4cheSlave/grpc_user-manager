@@ -30,6 +30,7 @@ type UserSaver interface {
 
 type UserProvider interface {
 	GetUser(ctx context.Context, username string) (*domainAuth.User, error)
+	GetUserNameByUserId(ctx context.Context, userId *string) (*string, error)
 }
 
 var (
@@ -103,4 +104,21 @@ func (a *Auth) Register(ctx context.Context, username string, password string) (
 	log.Info("user registered successfully")
 
 	return id, nil
+}
+
+func (a *Auth) CheckUser(ctx context.Context, username string) (userId *string, err error) {
+	const op = "internal/usecase/auth/service.Auth.CheckUser"
+	log := a.log.With(slog.String("operation", op))
+	log.Info("checking user")
+	user, err := a.usrProvider.GetUserNameByUserId(ctx, &username)
+	if err != nil {
+		if errors.Is(err, dbImpl.ErrUserNotFound) {
+			a.log.Warn("user not found", slog.String("error", err.Error()))
+			return nil, errors.Wrap(ErrInvalidCredentials, op)
+		}
+		a.log.Error("failed to get user", slog.String("error", err.Error()))
+		return nil, errors.Wrap(err, op)
+	}
+	log.Info("successfully checked user")
+	return user, nil
 }

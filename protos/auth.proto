@@ -2,13 +2,27 @@ syntax = "proto3";
 
 package auth;
 
+import "google/api/annotations.proto";
+
 //protoc --go_out=. --go_opt=module=github.com/Vy4cheSlave/grpc_user-manager        --go-grpc_out=. --go-grpc_opt=module=github.com/Vy4cheSlave/grpc_user-manager        proto/auth.proto
 
 option go_package = "github.com/Vy4cheSlave/grpc_user-manager/gen/go/auth;auth";
 
+
 service Auth {
-  rpc Register (RegisterRequest) returns (RegisterResponse);
-  rpc Login (LoginRequest) returns (LoginResponse);
+  rpc Register (RegisterRequest) returns (RegisterResponse) {
+    option (google.api.http) = {
+      post: "/v1/auth/register"
+      body: "*"
+    };
+  }
+  rpc Login (LoginRequest) returns (LoginResponse) {
+    option (google.api.http) = {
+      post: "/v1/auth/login"
+      body: "*"
+    };
+  }
+  rpc CheckUser (CheckUserRequest) returns (CheckUserResponse);
 }
 
 message RegisterRequest {
@@ -27,4 +41,12 @@ message LoginRequest {
 
 message LoginResponse {
   string token = 1;
+}
+
+message CheckUserRequest {
+  string user_id = 1;
+}
+
+message CheckUserResponse {
+  string username = 1;
 }

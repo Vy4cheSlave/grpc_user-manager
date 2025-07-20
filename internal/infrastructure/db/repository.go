@@ -29,6 +29,7 @@ const (
 	updateStatusTaskByIdQuery     = `update tasks set status = $1, updated_at = now() where id = $2 returning id;`
 	deleteTaskByIdQuery           = `delete from tasks where id = $1;`
 	getTasksByUserIdQuery         = `select id, user_id, title, description, status, created_at, updated_at from tasks where user_id = $1;`
+	getUsernameByUserIdQuery      = `select username from users where id = $1;`
 )
 
 type Repository struct {
@@ -198,4 +199,17 @@ func (r *Repository) DeleteTask(ctx context.Context, taskId int) (err error) {
 		return errors.Wrap(err, op)
 	}
 	return nil
+}
+
+func (r *Repository) GetUserNameByUserId(ctx context.Context, userId *string) (*string, error) {
+	const op = "internal/infrastructure/db/repository.Repository.GetUserNameByUserId"
+	var userName string
+	err := r.pool.QueryRow(ctx, getUsernameByUserIdQuery, *userId).Scan(&userName)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, errors.Wrap(ErrUserNotFound, op)
+		}
+		return nil, errors.Wrap(err, op)
+	}
+	return &userName, nil
 }
